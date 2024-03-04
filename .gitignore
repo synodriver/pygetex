@@ -1,0 +1,12 @@
+*.png
+*.txt
+*.rar
+*.db
+*.jpeg
+*.dll
+*.so
+*.pyd
+*.pyc
+*.pyo
+*.exe
+.idea
