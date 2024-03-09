@@ -32,6 +32,8 @@ class CoreProcess:
             self.handlers[name] = handler_tp(self)  # type: ignore
         self._pending_tasks = {}  # type: Dict[int, asyncio.Task]
         self._dispatch_tasks = set()  # type: Set[asyncio.Task]
+        self._complete_event = asyncio.Event()
+        self._complete_event.set()
 
     def enable_plugin(self, name: str):
         if name in self.plugins:
@@ -115,6 +117,7 @@ class CoreProcess:
                     )
                     download_tasks.append(download_task)
                     self.dispatch_nowait("on_download_start", download_task.id)
+                    self._complete_event.clear()  # 现在不是处于完成状态了
         return download_tasks  # 下载results_new的东西
 
     def _on_download_task_complete(self, aiotask: asyncio.Task, taskid: int) -> None:
@@ -128,6 +131,8 @@ class CoreProcess:
             tmp_task.add_done_callback(self._dispatch_tasks.discard)
             self.dispatch_nowait("on_download_complete", taskid)
         self._pending_tasks.pop(taskid)  # type: ignore
+        if not self._pending_tasks:
+            self._complete_event.set()  # 现在处于完成状态
 
     # todo 增加exception子模块，抛出合适的异常
     async def stop(self, taskid: int):
@@ -325,15 +330,16 @@ class CoreProcess:
                 partial(self._on_download_task_complete, taskid=download_task.id)
             )
             self.dispatch_nowait("on_download_start", download_task.id)
+            self._complete_event.clear()  # 现在不是处于完成状态了
 
-    async def _resume_tasks(self):
+    async def _resume_tasks(self) -> None:
         """
         断点续传的逻辑 从数据库中寻找downloading的任务，以resume=True调用handler
         :return:
         """
         resume_aiotasks: List[asyncio.Task] = []
         async with AsyncSession(self.db) as session:
-            tasks: List[DownloadTask] = (  # type: ignore
+            tasks: List[DownloadTask] = (
                 await session.exec(
                     select(DownloadTask).where(DownloadTask.status == "downloading")
                 )
@@ -343,6 +349,13 @@ class CoreProcess:
                     asyncio.create_task(self._resume_one(download_task))
                 )
             await asyncio.gather(*resume_aiotasks)
+
+    async def wait(self):
+        """
+        等待全部下载任务完成
+        :return:
+        """
+        await self._complete_event.wait()
 
     async def startup(self):
         await self._resume_tasks()

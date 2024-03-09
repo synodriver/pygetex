@@ -29,7 +29,9 @@ class HTTPXDownloader(HTTPDownloaderBase):
     def __init__(self, config: Config):
         self.config = config
         self.client = httpx.AsyncClient(
-            headers=getattr(config, "headers", None), follow_redirects=True
+            headers=getattr(config, "headers", None),
+            follow_redirects=True,
+            http2=getattr(config, "http2", True),
         )
 
     async def download(

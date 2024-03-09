@@ -22,7 +22,7 @@ def pre_alloc_file(path: str, length: int, mode=0o666, exist_ok=True):
     if not exist_ok:
         flags |= os.O_EXCL
     fd = os.open(path, flags, mode)
-    os.truncate(fd, length)  # todo os.posix_fallocate on unix?
+    os.truncate(fd, length)  # todo os.posix_fallocate on unix? SetFileValidData on win?
     os.close(fd)
 
 
