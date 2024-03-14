@@ -14,7 +14,7 @@ class AIOHTTPBodyReader(AsyncReader):
         resp: aiohttp.ClientResponse,
         config: Config,
     ):
-        self._context = context
+        self.context = context
         self._resp = resp
         self.config = config
 
@@ -28,7 +28,7 @@ class AIOHTTPBodyReader(AsyncReader):
             raise StopAsyncIteration
 
     async def close(self):
-        await self._context.__aexit__(None, None, None)
+        await self.context.__aexit__(None, None, None)
 
 
 class AIOHTTPDownloader(HTTPDownloaderBase):

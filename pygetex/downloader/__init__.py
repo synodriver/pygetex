@@ -34,3 +34,17 @@ class HTTPDownloaderBase(DownloaderBase):
 
     async def close(self):
         ...
+
+
+class FTPDownloaderBase(DownloaderBase):
+    async def support_range(self, uri: str) -> bool:  # type: ignore
+        ...
+
+    async def size(self, uri: str) -> int:  # type: ignore
+        ...
+
+    async def download(self, uri: str, offset: int, count: int) -> AsyncReader:  # type: ignore
+        ...
+
+    async def close(self):
+        ...

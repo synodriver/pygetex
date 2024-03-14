@@ -36,9 +36,17 @@ class Config(BaseSettings):
     dir: str = Field("/download", description="default download path")
     out: Optional[str] = Field(None, description="default download file name")
 
-    downloader: Optional[str] = Field(
+    http_downloader: Optional[str] = Field(
         "pygetex.downloader.aiohttpdownloader.AIOHTTPDownloader",
-        description="default download path",
+        description="default http downloader",
+    )
+    ftp_downloader: Optional[str] = Field(
+        "pygetex.downloader.aioftpdownloader.AIOFTPDownloader",
+        description="default ftp downloader",
+    )
+    sftp_downloader: Optional[str] = Field(
+        "pygetex.downloader.asyncsshdownloader.SFTPDownloader",
+        description="default ftp downloader",
     )
 
 

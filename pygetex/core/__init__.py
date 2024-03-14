@@ -14,7 +14,9 @@ from pygetex import __version__
 from pygetex.config import Config
 from pygetex.core.statscollector import StatsCollector
 from pygetex.handler import HandlerBase, HandlerMeta
-from pygetex.handler.http import HttpHandler  # load this handler
+from pygetex.handler.ftp import FTPHandler
+from pygetex.handler.http import HTTPHandler  # load this handler
+from pygetex.handler.sftp import SFTPHandler
 from pygetex.plugin import PluginBase, PluginMeta
 from pygetex.task import DownloadTask
 
